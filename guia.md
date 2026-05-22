@@ -2,19 +2,19 @@
 
 **Início:** 23/04/2026 | **Limite:** antes do projeto final (Webhook Ingestion)
 
-Cada módulo é um projeto NestJS independente em sua própria pasta. Spec detalhada em cada `spec.md`.
+Projeto único na raiz — cada módulo incrementa o anterior. Specs em `specs/`.
 
 ## Módulos
 
-| # | Pasta | Tópico | Spec |
-|---|-------|--------|------|
-| 1 | `Modulos/modulo-1-crud/` | CRUD + REST + DTOs + Validação | [spec.md](./Modulos/modulo-1-crud/spec.md) |
-| 2 | `Modulos/modulo-2-banco/` | PostgreSQL + TypeORM | [spec.md](./Modulos/modulo-2-banco/spec.md) |
-| 3 | `Modulos/modulo-3-pipes-interceptors/` | Error handling, Pipes, Interceptors | [spec.md](./Modulos/modulo-3-pipes-interceptors/spec.md) |
-| 4 | `Modulos/modulo-4-auth/` | JWT + Guards | [spec.md](./Modulos/modulo-4-auth/spec.md) |
-| 5 | `Modulos/modulo-5-testes/` | Unit + e2e | [spec.md](./Modulos/modulo-5-testes/spec.md) |
-| 6 | `Modulos/modulo-6-docker/` | Docker + Config | [spec.md](./Modulos/modulo-6-docker/spec.md) |
-| 7 | `Modulos/modulo-7-filas/` | BullMQ + Redis + Idempotência | [spec.md](./Modulos/modulo-7-filas/spec.md) |
+| # | Tópico | Spec |
+|---|--------|------|
+| 1 | CRUD + REST + DTOs + Validação | [modulo-1-crud.md](./specs/modulo-1-crud.md) |
+| 2 | PostgreSQL + TypeORM | [modulo-2-banco.md](./specs/modulo-2-banco.md) |
+| 3 | Error handling, Pipes, Interceptors | [modulo-3-pipes-interceptors.md](./specs/modulo-3-pipes-interceptors.md) |
+| 4 | JWT + Guards | [modulo-4-auth.md](./specs/modulo-4-auth.md) |
+| 5 | Unit + e2e | [modulo-5-testes.md](./specs/modulo-5-testes.md) |
+| 6 | Docker + Config | [modulo-6-docker.md](./specs/modulo-6-docker.md) |
+| 7 | BullMQ + Redis + Idempotência | [modulo-7-filas.md](./specs/modulo-7-filas.md) |
 
 ## Libs por módulo
 
