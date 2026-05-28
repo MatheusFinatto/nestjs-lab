@@ -21,11 +21,11 @@ Projeto único na raiz — cada módulo incrementa o anterior. Specs em `specs/`
 | Módulo | Instalar |
 |--------|----------|
 | 1 | `npm i class-validator class-transformer` |
-| 2 | `npm i @nestjs/typeorm typeorm pg` |
+| 2 | `npm i @nestjs/typeorm typeorm pg @nestjs/config` |
 | 3 | — (tudo em `@nestjs/common`) |
 | 4 | `npm i @nestjs/jwt @nestjs/passport passport passport-jwt bcrypt` + `npm i -D @types/passport-jwt @types/bcrypt` |
 | 5 | `npm i -D supertest @types/supertest` |
-| 6 | `npm i @nestjs/config` |
+| 6 | — |
 | 7 | `npm i bullmq @nestjs/bullmq` |
 
 ## Red flags (não levar pra entrevista)
