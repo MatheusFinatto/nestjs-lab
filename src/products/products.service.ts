@@ -1,47 +1,39 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Product } from './entities/product.entity';
-import { randomUUID } from 'node:crypto';
-
-// Array tipado no service + os 5 métodos (findAll, findOne, create, update, remove)
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
-  private readonly mockProducts: Product[] = [
-    { id: '1', name: 'Product 1', price: 10.99, stock: 100 },
-    { id: '2', name: 'Product 2', price: 19.99, stock: 50 },
-    { id: '3', name: 'Product 3', price: 5.99, stock: 200 },
-  ];
+  constructor(
+    @InjectRepository(Product)
+    private readonly productsRepository: Repository<Product>,
+  ) {}
 
-  findAll(): Product[] {
-    return this.mockProducts;
+  async findAll(): Promise<Product[]> {
+    return this.productsRepository.find();
   }
 
-  findOne(id: string): Product {
-    const product = this.mockProducts.find((p) => p.id === id);
-
+  async findOne(id: string): Promise<Product> {
+    const product = await this.productsRepository.findOneBy({ id });
     if (!product) throw new NotFoundException();
-
     return product;
   }
 
-  create(product: Omit<Product, 'id'>): Product {
-    const newProduct = { ...product, id: randomUUID() };
-    this.mockProducts.push(newProduct);
-
-    return newProduct;
+  async create(dto: CreateProductDto): Promise<Product> {
+    const product = this.productsRepository.create(dto);
+    return this.productsRepository.save(product);
   }
 
-  update(id: string, product: Omit<Product, 'id'>): Product {
-    const productToBeUpdated = this.mockProducts.findIndex((p) => p.id === id);
-
-    if (productToBeUpdated < 0) throw new NotFoundException();
-    this.mockProducts[productToBeUpdated] = { ...product, id };
-    return this.mockProducts[productToBeUpdated];
+  async update(id: string, dto: UpdateProductDto): Promise<Product> {
+    const product = await this.findOne(id);
+    return this.productsRepository.save({ ...product, ...dto });
   }
 
-  remove(id: string): void {
-    const index = this.mockProducts.findIndex((p) => p.id === id);
-    if (index < 0) throw new NotFoundException();
-    this.mockProducts.splice(index, 1);
+  async remove(id: string): Promise<void> {
+    const product = await this.findOne(id);
+    await this.productsRepository.remove(product);
   }
 }
