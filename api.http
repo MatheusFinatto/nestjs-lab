@@ -1,0 +1,148 @@
+@baseUrl = http://localhost:3210
+
+# ======================================================================
+# AUTH
+# ======================================================================
+
+### Registrar usuário (público após @Public)
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "matheus@example.com",
+  "password": "supersecret"
+}
+
+### Login — captura o access_token pra reusar nas rotas protegidas
+# repara: vem em .data.access_token por causa do TransformInterceptor ({ data: ... })
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "matheus@example.com",
+  "password": "supersecret"
+}
+
+### Variável com o token capturado do login acima
+@token = {{login.response.body.data.access_token}}
+
+# ======================================================================
+# PRODUCTS — happy path (rotas de escrita exigem Bearer)
+# ======================================================================
+
+### Criar produto (guarda a resposta como "create" pra reusar o id)
+# @name create
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Mouse",
+  "price": 99.9,
+  "stock": 10
+}
+
+### Listar produtos 
+GET {{baseUrl}}/products
+
+### Buscar por id 
+# o id vem em .data.id por causa do TransformInterceptor
+GET {{baseUrl}}/products/{{create.response.body.data.id}}
+
+### Atualizar (PATCH parcial — manda só o que muda)
+PATCH {{baseUrl}}/products/{{create.response.body.data.id}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "price": 79.9
+}
+
+### Deletar — presta atenção no status (204) e no body vazio
+DELETE {{baseUrl}}/products/{{create.response.body.data.id}}
+Authorization: Bearer {{token}}
+
+# ======================================================================
+# PRODUCTS — casos de erro (Pipes + HttpExceptionFilter)
+# ======================================================================
+
+### Body inválido — ValidationPipe barra (400, whitelist/forbid)
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "",
+  "price": -5,
+  "stock": 1.5,
+  "campoProibido": "nao deveria passar"
+}
+
+### UUID malformado — ParseUUIDPipe barra (400)
+GET {{baseUrl}}/products/nao-e-uuid
+
+### UUID válido mas inexistente — 404 (NotFoundException)
+GET {{baseUrl}}/products/00000000-0000-0000-0000-000000000000
+
+# ======================================================================
+# AUTH — casos de erro
+# ======================================================================
+
+### Login com senha errada — 401 (mesma mensagem, anti-enumeration)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "matheus@example.com",
+  "password": "senhaerrada"
+}
+
+### Login com email inexistente — 401 (mesma mensagem)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "naoexiste@example.com",
+  "password": "qualquercoisa"
+}
+
+### Register com body inválido — 400 (email inválido, senha curta)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "nao-e-email",
+  "password": "123"
+}
+
+# ======================================================================
+# GUARD GLOBAL — testes de proteção
+# ======================================================================
+
+### Escrita SEM token → deve dar 401 (guard global)
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "SemToken",
+  "price": 10,
+  "stock": 1
+}
+
+### Escrita com token GARBAGE → deve dar 401
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer token.invalido.aqui
+
+{
+  "name": "TokenLixo",
+  "price": 10,
+  "stock": 1
+}
+
+### test: get auth/me
+Authorization: Bearer {{token}}
+GET {{baseUrl}}/auth/me
+
