@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: nestjs_lab_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: nestjs_lab
+    ports:
+      # host:container — host 5544 bate com DB_PORT no .env
+      - "5544:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # roda só na primeira criação do volume: habilita uuid_generate_v4()
+      - ./docker/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nestjs_lab"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
