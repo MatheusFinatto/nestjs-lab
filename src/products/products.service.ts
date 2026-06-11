@@ -28,8 +28,9 @@ export class ProductsService {
   }
 
   async update(id: string, dto: UpdateProductDto): Promise<Product> {
-    const product = await this.findOne(id);
-    return this.productsRepository.save({ ...product, ...dto });
+    const product = await this.productsRepository.preload({ id, ...dto });
+    if (!product) throw new NotFoundException();
+    return this.productsRepository.save(product);
   }
 
   async remove(id: string): Promise<void> {

@@ -1,22 +1,7 @@
-import {
-  IsInt,
-  IsNotEmpty,
-  IsNumber,
-  IsPositive,
-  IsString,
-  Min,
-} from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateProductDto } from './create-product.dto';
 
-export class UpdateProductDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsNumber()
-  @IsPositive()
-  price: number;
-
-  @IsInt()
-  @Min(0)
-  stock: number;
-}
+// PartialType pega o CreateProductDto e marca TODOS os campos como opcionais
+// (aplica @IsOptional() em cada um), mantendo as mesmas regras quando o campo
+// vier. Zero decorator copiado: se Create mudar, Update acompanha sozinho.
+export class UpdateProductDto extends PartialType(CreateProductDto) {}
