@@ -15,14 +15,16 @@ Construir uma API REST completa com NestJS usando apenas memória (sem banco). F
 | GET    | /products       | 200 + array | —             |
 | GET    | /products/:id   | 200 + objeto | 404           |
 | POST   | /products       | 201 + objeto criado | 400 (body inválido) |
-| PUT    | /products/:id   | 200 + objeto atualizado | 404 / 400 |
+| PATCH  | /products/:id   | 200 + objeto atualizado | 404 / 400 |
 | DELETE | /products/:id   | 204 sem body | 404           |
 
 ## Regras de negócio
 
 - `id` gerado pelo service (não vem do body)
-- PUT substitui o produto inteiro — todos os campos obrigatórios
+- PATCH atualiza parcialmente — só os campos enviados mudam; os ausentes permanecem como estavam (merge, não replace)
 - DELETE não retorna body
+
+> **Por que PATCH e não PUT?** Update de produto é tipicamente parcial ("muda só o preço") — PUT obrigaria reenviar o objeto inteiro. PATCH é o verbo realista pra esse recurso, e força o aprendizado de `PartialType` + lógica de merge no service. PUT (replace, todos obrigatórios) é defensável quando o recurso é substituído por inteiro (ex: documento de config idempotente); não é o caso aqui.
 
 ## Validações (class-validator)
 
@@ -31,7 +33,7 @@ Construir uma API REST completa com NestJS usando apenas memória (sem banco). F
 - `price` — `@IsNumber()`, `@IsPositive()`
 - `stock` — `@IsInt()`, `@Min(0)`
 
-**UpdateProductDto:** mesmas regras, todos obrigatórios.
+**UpdateProductDto:** `extends PartialType(CreateProductDto)` — herda as mesmas regras do create, mas todos os campos viram opcionais (`@IsOptional()` aplicado pelo `PartialType`). Nada de copiar decorator à mão. (`PartialType` vem de `@nestjs/mapped-types`.)
 
 Body com campo desconhecido → 400 (`forbidNonWhitelisted: true`).
 
@@ -43,6 +45,8 @@ Body com campo desconhecido → 400 (`forbidNonWhitelisted: true`).
 - REST conventions: verbo HTTP correto, sem verbos na URL, status codes corretos
 - `ValidationPipe` global com `{ whitelist: true, forbidNonWhitelisted: true }`
 - `NotFoundException` lançada no service (não no controller)
+- `PartialType` para derivar o DTO de update sem duplicar validação
+- Update parcial no service: merge dos campos enviados sobre o registro existente, sem sobrescrever o resto com `undefined`
 
 ## Libs necessárias
 
@@ -57,7 +61,7 @@ npm i class-validator class-transformer
 - [ ] Array em memória no service (tipado, não `any[]`)
 - [ ] Todos os 5 endpoints implementados
 - [ ] `CreateProductDto` com validações
-- [ ] `UpdateProductDto` com validações
+- [ ] `UpdateProductDto` via `PartialType(CreateProductDto)` (campos opcionais, sem cópia)
 - [ ] `ValidationPipe` global em `main.ts`
 - [ ] `NotFoundException` no service para id inexistente
 - [ ] Testado manualmente:

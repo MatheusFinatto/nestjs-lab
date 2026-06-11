@@ -54,17 +54,17 @@ pnpm migration:run
 pnpm start:dev
 ```
 
-Servidor em `http://localhost:3000`.
+Servidor em `http://localhost:3210`.
 
 ## Endpoints
 
-| Método | Rota | Status ok | Status erro |
-|--------|------|-----------|-------------|
-| GET    | `/products`     | 200 | — |
-| GET    | `/products/:id` | 200 | 404 |
-| POST   | `/products`     | 201 | 400 |
-| PUT    | `/products/:id` | 200 | 400, 404 |
-| DELETE | `/products/:id` | 204 | 404 |
+| Método | Rota            | Status ok | Status erro |
+| ------ | --------------- | --------- | ----------- |
+| GET    | `/products`     | 200       | —           |
+| GET    | `/products/:id` | 200       | 404         |
+| POST   | `/products`     | 201       | 400         |
+| PUT    | `/products/:id` | 200       | 400, 404    |
+| DELETE | `/products/:id` | 204       | 404         |
 
 Body esperado em POST/PUT:
 

@@ -83,12 +83,19 @@ Nenhuma nova — tudo em `@nestjs/common` e `rxjs` (já incluso no NestJS).
 
 ## Checklist de entrega
 
-- [ ] `HttpExceptionFilter` implementado e registrado globalmente
-- [ ] Todas as respostas de erro seguem o formato padronizado
-- [ ] `ParseIntPipe` aplicado no parâmetro `:id`
-- [ ] Request com `:id` não numérico → 400 (não 500)
-- [ ] `LoggingInterceptor` implementado e registrado globalmente
-- [ ] Toda requisição loga método + rota + status + tempo
-- [ ] `TransformInterceptor` implementado e registrado globalmente
-- [ ] Toda resposta de sucesso retorna `{ data: ... }`
-- [ ] Saber explicar: qual peça captura exceção? qual envolve a execução? qual transforma entrada?
+- [x] `HttpExceptionFilter` implementado e registrado globalmente
+- [x] Todas as respostas de erro seguem o formato padronizado
+- [x] `ParseUUIDPipe` aplicado no parâmetro `:id` (PK é uuid, não int)
+- [x] Request com `:id` inválido → 400 (não 500)
+- [x] `LoggingInterceptor` implementado e registrado globalmente
+- [x] Toda requisição loga método + rota + status + tempo
+- [x] `TransformInterceptor` implementado e registrado globalmente
+- [x] Toda resposta de sucesso retorna `{ data: ... }`
+- [x] Saber explicar: qual peça captura exceção? qual envolve a execução? qual transforma entrada?
+
+## Entregue — desvios intencionais da spec (escolhas melhores)
+
+- **Registro via DI, não `useGlobal*`:** filtro e interceptors registrados com `APP_FILTER` / `APP_INTERCEPTOR` no `AppModule` (tokens multi-provider), em vez de `app.useGlobal*()` no `main.ts`. Mantém o `main.ts` enxuto e abre porta pra injeção de dependência nas peças globais.
+- **`ParseUUIDPipe` no lugar de `ParseIntPipe`:** o PK do `Product` é uuid; `ParseIntPipe` seria incorreto.
+- **Guard no `TransformInterceptor`:** não embrulha resposta sem corpo (`DELETE` → 204). Sem isso, geraria `{}` à toa. Tipo de saída ficou `Response<T> | undefined`.
+- O `ValidationPipe` continua no `main.ts` (não foi pra DI): ele recebe opções configuradas e não precisa injetar nada — mover pra `APP_PIPE` perderia a config (`useClass`) ou não ganharia DI (`useValue`).
